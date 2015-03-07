@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Drawing;
+using System.Threading;
 
 namespace LeagueExtender
 {
@@ -49,6 +50,10 @@ namespace LeagueExtender
             this.Location = this.LolClient.Location;
             Button b = new Button { BackColor = Color.Transparent, Text = "Test" };
             this.Controls.Add(b);
+
+            this.LolClient.ListenForEvents();
+
+            this.Text = "test";
         }
 
         private void MoveToFront()

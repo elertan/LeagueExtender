@@ -18,6 +18,7 @@ namespace LeagueExtender
         private Size _OrginalSize;
         private CancellationTokenSource _tokenSource;
         private ExternalFeatures.RECT _lastRect;
+        private Action _eventAction;
 
         public event EventHandler MovedWindow;
         public event EventHandler MinimizedWindow;
@@ -115,8 +116,6 @@ namespace LeagueExtender
 
             this._OrginalSize = this.GetSize(true);
 
-            Task.Factory.StartNew(() => CheckEvents(this._tokenSource.Token)).ContinueWith(t => { foreach (Action a in t.Result) { a.Invoke(); } }, TaskScheduler.FromCurrentSynchronizationContext());
-
         }
 
         //public LolClient(IntPtr Handle)
@@ -147,28 +146,43 @@ namespace LeagueExtender
             return new Size(0, 0);
         }
 
-        private ExternalFeatures.RECT GetRect()
+        private ExternalFeatures.RECT GetRect(bool Force = false)
         {
+            if (Force)
+            {
+                ExternalFeatures.SetForegroundWindow(this.Handle);
+            }
             ExternalFeatures.RECT rcSize;
             ExternalFeatures.GetWindowRect(this.Handle, out rcSize);
             return rcSize;
         }
 
-        private Action[] CheckEvents(CancellationToken token)
+        public void ListenForEvents()
         {
-            Action defAction = new Action(() => Task.Factory.StartNew(() => CheckEvents(this._tokenSource.Token)).ContinueWith(t => { foreach (Action a in t.Result) { a.Invoke(); } }, TaskScheduler.FromCurrentSynchronizationContext()));
-            if (token.IsCancellationRequested)
+            var context = TaskScheduler.FromCurrentSynchronizationContext();
+            try
             {
-                token.ThrowIfCancellationRequested();
-            }
-            ExternalFeatures.RECT rect = this.GetRect();
-            if (rect.Top != this._lastRect.Top || rect.Left != this._lastRect.Left)
-            {
-                return new Action[] { defAction, new Action(() => this.OnMovedWindow()) };
-            }
-            this._lastRect = this.GetRect();
-            return new Action[] { defAction };
-        }
+                Task.Factory.StartNew(() =>
+                {
+                    for (;;)
+                    {
+                        if (this._tokenSource.Token.IsCancellationRequested)
+                        {
+                            this._tokenSource.Token.ThrowIfCancellationRequested();
+                        }
+                        ExternalFeatures.RECT rect = this.GetRect();
 
+                        if (rect.Top != this._lastRect.Top || rect.Left != this._lastRect.Left)
+                        {
+                            Task.Factory.StartNew(() => this.OnMovedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                        }
+
+                        this._lastRect = rect;
+                        Thread.Sleep(1);
+                    }
+                });
+            }
+            catch (Exception) { }
+        }
     }
 }
