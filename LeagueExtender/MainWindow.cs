@@ -40,7 +40,7 @@ namespace LeagueExtender
 
         void LolClient_MovedWindow(object sender, EventArgs e)
         {
-
+            this.Location = this.LolClient.Location;
         }
 
         void MainWindow_Load(object sender, EventArgs e)

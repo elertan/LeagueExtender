@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Threading;
 
 namespace LeagueExtender
 {
@@ -15,6 +16,8 @@ namespace LeagueExtender
 
         private ExternalFeatures.RECT _RECT;
         private Size _OrginalSize;
+        private CancellationTokenSource _tokenSource;
+        private ExternalFeatures.RECT _lastRect;
 
         public event EventHandler MovedWindow;
         public event EventHandler MinimizedWindow;
@@ -94,6 +97,11 @@ namespace LeagueExtender
             }
         }
 
+        ~LolClient()
+        {
+            this._tokenSource.Cancel();
+        }
+
         public LolClient()
         {
             Process[] procs = Process.GetProcessesByName("LolClient");
@@ -102,8 +110,13 @@ namespace LeagueExtender
                 throw new Exception("LolClient not found!");
             }
             this.Handle = procs[0].MainWindowHandle;
+            this._tokenSource = new CancellationTokenSource();
+            this._lastRect = this.GetRect();
 
             this._OrginalSize = this.GetSize(true);
+
+            Task.Factory.StartNew(() => { while (true) { CheckEvents(this._tokenSource.Token); Thread.Sleep(50); } }, this._tokenSource.Token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+
         }
 
         //public LolClient(IntPtr Handle)
@@ -139,6 +152,20 @@ namespace LeagueExtender
             ExternalFeatures.RECT rcSize;
             ExternalFeatures.GetWindowRect(this.Handle, out rcSize);
             return rcSize;
+        }
+
+        private void CheckEvents(CancellationToken token)
+        {
+            if (token.IsCancellationRequested)
+            {
+                token.ThrowIfCancellationRequested();
+            }
+            ExternalFeatures.RECT rect = this.GetRect();
+            if (rect.Top != this._lastRect.Top || rect.Left != this._lastRect.Left)
+            {
+                this.OnMovedWindow();
+            }
+            this._lastRect = this.GetRect();
         }
 
     }
