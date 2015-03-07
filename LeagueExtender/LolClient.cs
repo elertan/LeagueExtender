@@ -18,9 +18,13 @@ namespace LeagueExtender
         private Size _OrginalSize;
         private CancellationTokenSource _tokenSource;
         private ExternalFeatures.RECT _lastRect;
+        private Action _eventAction;
+        private bool _movingWindow;
 
         public event EventHandler MovedWindow;
+        public event EventHandler PlacedWindow;
         public event EventHandler MinimizedWindow;
+        //public event EventHandler ClickedWindow;
 
         private void OnMovedWindow()
         {
@@ -37,6 +41,22 @@ namespace LeagueExtender
                 MinimizedWindow(this, EventArgs.Empty);
             }
         }
+
+        private void OnPlacedWindow()
+        {
+            if (PlacedWindow != null)
+            {
+                PlacedWindow(this, EventArgs.Empty);
+            }
+        }
+
+        //private void OnClickedWindow()
+        //{
+        //    if (ClickedWindow != null)
+        //    {
+        //        ClickedWindow(this, EventArgs.Empty);
+        //    }
+        //}
 
         public IntPtr Handle { get; set; }
 
@@ -112,10 +132,9 @@ namespace LeagueExtender
             this.Handle = procs[0].MainWindowHandle;
             this._tokenSource = new CancellationTokenSource();
             this._lastRect = this.GetRect();
+            this._movingWindow = false;
 
             this._OrginalSize = this.GetSize(true);
-
-            Task.Factory.StartNew(() => { while (true) { CheckEvents(this._tokenSource.Token); Thread.Sleep(50); } }, this._tokenSource.Token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
 
         }
 
@@ -147,26 +166,59 @@ namespace LeagueExtender
             return new Size(0, 0);
         }
 
-        private ExternalFeatures.RECT GetRect()
+        private ExternalFeatures.RECT GetRect(bool Force = false)
         {
+            if (Force)
+            {
+                ExternalFeatures.SetForegroundWindow(this.Handle);
+            }
             ExternalFeatures.RECT rcSize;
             ExternalFeatures.GetWindowRect(this.Handle, out rcSize);
             return rcSize;
         }
 
-        private void CheckEvents(CancellationToken token)
+        public void ListenForEvents()
         {
-            if (token.IsCancellationRequested)
+            var context = TaskScheduler.FromCurrentSynchronizationContext();
+            try
             {
-                token.ThrowIfCancellationRequested();
-            }
-            ExternalFeatures.RECT rect = this.GetRect();
-            if (rect.Top != this._lastRect.Top || rect.Left != this._lastRect.Left)
-            {
-                this.OnMovedWindow();
-            }
-            this._lastRect = this.GetRect();
-        }
+                Task.Factory.StartNew(() =>
+                {
+                    for (;;)
+                    {
+                        if (this._tokenSource.Token.IsCancellationRequested)
+                        {
+                            this._tokenSource.Token.ThrowIfCancellationRequested();
+                        }
+                        ExternalFeatures.RECT rect = this.GetRect();
 
+                        if (rect.Top != this._lastRect.Top || rect.Left != this._lastRect.Left)
+                        {
+                            Task.Factory.StartNew(() => this.OnMovedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                            this._movingWindow = true;
+                        }
+
+                        if (rect.Top == this._lastRect.Top && rect.Left == this._lastRect.Left && this._movingWindow && Control.MouseButtons == MouseButtons.None)
+                        {
+                            this._movingWindow = false;
+                            Task.Factory.StartNew(() => this.OnPlacedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                        }
+
+                        if (Control.MousePosition.X >= this.Location.X &&
+                            Control.MousePosition.X <= this.Location.X + this.Size.Width &&
+                            Control.MousePosition.Y >= this.Location.Y &&
+                            Control.MousePosition.Y <= this.Location.Y + this.Size.Height &&
+                            (Control.MouseButtons == MouseButtons.Left || Control.MouseButtons == MouseButtons.Right))
+                        {
+                            //Task.Factory.StartNew(() => this.OnPlacedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                        }
+
+                        this._lastRect = rect;
+                        Thread.Sleep(1);
+                    }
+                });
+            }
+            catch (Exception) { }
+        }
     }
 }
