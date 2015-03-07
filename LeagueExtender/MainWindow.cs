@@ -23,7 +23,7 @@ namespace LeagueExtender
         public MainWindow()
         {
             this.LolClient = new LolClient();
-            this.prefDialog = new PreferencesDialog();
+            this.prefDialog = new PreferencesDialog(this.LolClient);
 
             InitializeComponents();
 

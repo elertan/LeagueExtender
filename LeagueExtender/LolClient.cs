@@ -72,7 +72,7 @@ namespace LeagueExtender
                 {
                     return new Size(this._RECT.Right - this._RECT.Left, this._RECT.Bottom - this._RECT.Top);
                 }
-                throw new Exception("Couldn't retrieve the Size");
+                return this._OrginalSize;
             }
             set
             {
@@ -97,7 +97,7 @@ namespace LeagueExtender
                 {
                     return new Point(this._RECT.Left, this._RECT.Top);
                 }
-                throw new Exception("Couldn't retrieve the Location");
+                return new Point(-2000, -2000);
             }
         }
 
