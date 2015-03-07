@@ -8,7 +8,7 @@ using System.Drawing;
 
 namespace LeagueExtender
 {
-    public class MainWindow : Form
+    public partial class MainWindow : Form
     {
         public MainWindow()
         {
