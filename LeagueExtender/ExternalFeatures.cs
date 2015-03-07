@@ -21,6 +21,20 @@ namespace LeagueExtender
             public int Top;         // y position of upper-left corner
             public int Right;       // x position of lower-right corner
             public int Bottom;      // y position of lower-right corner
+            public int Width
+            {
+                get
+                {
+                    return this.Right - this.Left;
+                }
+            }
+            public int Height
+            {
+                get
+                {
+                    return this.Bottom - this.Top;
+                }
+            }
         }
     }
 }
