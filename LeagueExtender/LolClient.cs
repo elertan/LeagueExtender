@@ -115,7 +115,7 @@ namespace LeagueExtender
 
             this._OrginalSize = this.GetSize(true);
 
-            Task.Factory.StartNew(() => { while (true) { CheckEvents(this._tokenSource.Token); Thread.Sleep(50); } }, this._tokenSource.Token, TaskCreationOptions.None, TaskScheduler.FromCurrentSynchronizationContext());
+            Task.Factory.StartNew(() => CheckEvents(this._tokenSource.Token)).ContinueWith(t => { foreach (Action a in t.Result) { a.Invoke(); } }, TaskScheduler.FromCurrentSynchronizationContext());
 
         }
 
@@ -154,8 +154,9 @@ namespace LeagueExtender
             return rcSize;
         }
 
-        private void CheckEvents(CancellationToken token)
+        private Action[] CheckEvents(CancellationToken token)
         {
+            Action defAction = new Action(() => Task.Factory.StartNew(() => CheckEvents(this._tokenSource.Token)).ContinueWith(t => { foreach (Action a in t.Result) { a.Invoke(); } }, TaskScheduler.FromCurrentSynchronizationContext()));
             if (token.IsCancellationRequested)
             {
                 token.ThrowIfCancellationRequested();
@@ -163,9 +164,10 @@ namespace LeagueExtender
             ExternalFeatures.RECT rect = this.GetRect();
             if (rect.Top != this._lastRect.Top || rect.Left != this._lastRect.Left)
             {
-                this.OnMovedWindow();
+                return new Action[] { defAction, new Action(() => this.OnMovedWindow()) };
             }
             this._lastRect = this.GetRect();
+            return new Action[] { defAction };
         }
 
     }
