@@ -37,6 +37,18 @@ namespace LeagueExtender
             this.LolClient.MovedWindow += LolClient_MovedWindow;
             this.LolClient.PlacedWindow += LolClient_PlacedWindow;
             this.LolClient.MinimizedWindow += LolClient_MinimizedWindow;
+            this.LolClient.ClosedWindow += LolClient_ClosedWindow;
+            this.LolClient.ClickedWindow += LolClient_ClickedWindow;
+        }
+
+        void LolClient_ClickedWindow(object sender, EventArgs e)
+        {
+            this.MoveToFront();
+        }
+
+        void LolClient_ClosedWindow(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
 
         void LolClient_PlacedWindow(object sender, EventArgs e)

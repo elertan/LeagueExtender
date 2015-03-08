@@ -24,7 +24,8 @@ namespace LeagueExtender
         public event EventHandler MovedWindow;
         public event EventHandler PlacedWindow;
         public event EventHandler MinimizedWindow;
-        //public event EventHandler ClickedWindow;
+        public event EventHandler ClosedWindow;
+        public event EventHandler ClickedWindow;
 
         private void OnMovedWindow()
         {
@@ -50,13 +51,21 @@ namespace LeagueExtender
             }
         }
 
-        //private void OnClickedWindow()
-        //{
-        //    if (ClickedWindow != null)
-        //    {
-        //        ClickedWindow(this, EventArgs.Empty);
-        //    }
-        //}
+        private void OnClosedWindow()
+        {
+            if (ClosedWindow != null)
+            {
+                ClosedWindow(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnClickedWindow()
+        {
+            if (ClickedWindow != null)
+            {
+                ClickedWindow(this, EventArgs.Empty);
+            }
+        }
 
         public IntPtr Handle { get; set; }
 
@@ -184,6 +193,7 @@ namespace LeagueExtender
             {
                 Task.Factory.StartNew(() =>
                 {
+                    int clicksDetected = 0;
                     for (;;)
                     {
                         if (this._tokenSource.Token.IsCancellationRequested)
@@ -208,9 +218,23 @@ namespace LeagueExtender
                             Control.MousePosition.X <= this.Location.X + this.Size.Width &&
                             Control.MousePosition.Y >= this.Location.Y &&
                             Control.MousePosition.Y <= this.Location.Y + this.Size.Height &&
-                            (Control.MouseButtons == MouseButtons.Left || Control.MouseButtons == MouseButtons.Right))
+                            !this._movingWindow &&
+                            Control.MouseButtons == MouseButtons.Left)
                         {
-                            //Task.Factory.StartNew(() => this.OnPlacedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                            clicksDetected++;
+                            if (clicksDetected > 20)
+                            {
+                                Task.Factory.StartNew(() => this.OnClickedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                            }
+                        }
+                        else
+                        {
+                            clicksDetected = 0;
+                        }
+
+                        if (!this.IsAlive)
+                        {
+                            Task.Factory.StartNew(() => this.OnClosedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
                         }
 
                         this._lastRect = rect;

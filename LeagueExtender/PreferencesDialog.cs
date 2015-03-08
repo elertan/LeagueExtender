@@ -5,11 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace LeagueExtender
 {
     public class PreferencesDialog : Form
     {
+
+        Button btnExit;
+        Label lblSummonerName;
+        TextBox txtSummonerName;
+
         public PreferencesDialog(LolClient client)
         {
             this.Text = "LeagueExtender Preferences";
@@ -20,16 +26,47 @@ namespace LeagueExtender
             this.Icon = LeagueExtender.Properties.Resources.gear_blue_ico;
 
             InitializeComponent();
+
+            this.FormClosing += PreferencesDialog_FormClosing;
+            this.Load += PreferencesDialog_Load;
+        }
+
+        void PreferencesDialog_Load(object sender, EventArgs e)
+        {
+            if (File.Exists("data.les"))
+            {
+                Settings settings = Settings.Load("data.les");
+                this.txtSummonerName.Text = settings.SummonerName;
+            }
+        }
+
+        void PreferencesDialog_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Settings.Save("data.les", new Settings { SummonerName = this.txtSummonerName.Text });
         }
 
         private void InitializeComponent()
         {
-            Button btnExit = new Button();
+            btnExit = new Button();
             btnExit.Text = "Exit LeagueExtender";
             btnExit.Width = 130;
             btnExit.Location = new Point(this.Size.Width / 2 - btnExit.Width / 2, this.Size.Height - 45 - btnExit.Height);
             btnExit.Click += btnExit_Click;
 
+            lblSummonerName = new Label
+            {
+                Text = "Summoner Name:",
+                Location = new Point(10, 10)
+            };
+
+            txtSummonerName = new TextBox
+            {
+                Location = new Point(lblSummonerName.Location.X + lblSummonerName.Width, 10),
+                Width = this.Width - lblSummonerName.Location.X - lblSummonerName.Width - 30
+            };
+
+            this.Controls.Add(lblSummonerName);
+            this.Controls.Add(txtSummonerName);
             this.Controls.Add(btnExit);
         }
 
