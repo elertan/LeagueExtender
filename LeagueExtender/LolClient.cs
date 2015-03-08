@@ -136,7 +136,9 @@ namespace LeagueExtender
             Process[] procs = Process.GetProcessesByName("LolClient");
             if (procs.Length == 0)
             {
-                throw new Exception("LolClient not found!");
+                //throw new Exception("LolClient not found!");
+                MessageBox.Show("LolClient was not found!");
+                Application.Exit();
             }
             this.Handle = procs[0].MainWindowHandle;
             this._tokenSource = new CancellationTokenSource();

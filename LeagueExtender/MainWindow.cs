@@ -120,25 +120,40 @@ namespace LeagueExtender
                 Text = "LolNexus"
             };
             btnLolNexus.Click += btnLolNexus_Click;
+            btnLolNexus.MouseHover += new EventHandler(btnHover);
+            btnLolNexus.MouseLeave += new EventHandler(btnLeave);
 
             btnLolKing = new Button
             {
                 Location = new Point(170, 0),
                 BackColor = Color.Transparent,
                 Size = new Size(120, 30),
-                Text = "LolKing"
+                Text = "LolKing",
+                Enabled = false
             };
             btnLolKing.Click += btnLolKing_Click;
+            btnLolKing.MouseHover += new EventHandler(btnHover);
+            btnLolKing.MouseLeave += new EventHandler(btnLeave);
 
-            lolNexusBrowser = new LolClientBrowser(LolClient, String.Format("http://www.lolnexus.com/{0}/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+            lolNexusBrowser = new LolClientBrowser(LolClient, String.Format("http://www.lolnexus.com/{0}/search?name={1}&region={0}", Settings.Load("data.les").Region, Settings.Load("data.les").SummonerName.Replace(" ", "+")));
             lolNexusBrowser.Hide();
 
-            lolKingBrowser = new LolClientBrowser(LolClient, String.Format("http://www.lolking.net/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+            lolKingBrowser = new LolClientBrowser(LolClient, String.Format("http://www.lolking.net/search?name={1}&region={0}", Settings.Load("data.les").Region, Settings.Load("data.les").SummonerName.Replace(" ", "+")));
             lolKingBrowser.Hide();
 
             this.Controls.Add(btnLolKing);
             this.Controls.Add(btnLolNexus);
             this.Controls.Add(gearImg);
+        }
+
+        private void btnHover(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Hand;
+        }
+
+        private void btnLeave(object sender, EventArgs e)
+        {
+            this.Cursor = Cursors.Default;
         }
 
         void btnLolKing_Click(object sender, EventArgs e)
@@ -147,7 +162,7 @@ namespace LeagueExtender
             {
                 lolKingBrowser.SetActive(true);
                 lolKingBrowser.Show();
-                lolKingBrowser.SetUrl(String.Format("http://www.lolking.net/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+                lolKingBrowser.SetUrl(String.Format("http://www.lolking.net/search?name={1}&region={0}", Settings.Load("data.les").Region, Settings.Load("data.les").SummonerName.Replace(" ", "+")));
             }
             else
             {
@@ -163,7 +178,7 @@ namespace LeagueExtender
             {
                 lolNexusBrowser.SetActive(true);
                 lolNexusBrowser.Show();
-                lolNexusBrowser.SetUrl(String.Format("http://www.lolnexus.com/{0}/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+                lolNexusBrowser.SetUrl(String.Format("http://www.lolnexus.com/{0}/search?name={1}&region={0}", Settings.Load("data.les").Region, Settings.Load("data.les").SummonerName.Replace(" ", "+")));
             }
             else
             {

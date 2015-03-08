@@ -57,16 +57,16 @@ namespace LeagueExtender
 
         public void SetUrl(string url)
         {
-            wBrowser.Url = new Uri(url);
+            wBrowser.Navigate(url, null, null, "User-Agent: Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.2; SV1; .NET CLR 3.3.69573; WOW64; en-US)");
         }
 
         private void InitializeComponent(string url)
         {
             wBrowser = new WebBrowser
             {
-                Url = new Uri(url),
                 Dock = DockStyle.Fill
             };
+            wBrowser.Navigate(url, null, null, "User-Agent: Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.2; SV1; .NET CLR 3.3.69573; WOW64; en-US)");
 
             this.Controls.Add(wBrowser);
         }

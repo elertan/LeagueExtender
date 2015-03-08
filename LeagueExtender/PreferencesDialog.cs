@@ -14,7 +14,9 @@ namespace LeagueExtender
 
         Button btnExit;
         Label lblSummonerName;
+        Label lblRegion;
         TextBox txtSummonerName;
+        TextBox txtRegion;
 
         public PreferencesDialog(LolClient client)
         {
@@ -37,12 +39,13 @@ namespace LeagueExtender
             {
                 Settings settings = Settings.Load("data.les");
                 this.txtSummonerName.Text = settings.SummonerName;
+                this.txtRegion.Text = settings.Region;
             }
         }
 
         void PreferencesDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Settings.Save("data.les", new Settings { SummonerName = this.txtSummonerName.Text });
+            Settings.Save("data.les", new Settings { SummonerName = this.txtSummonerName.Text, Region = this.txtRegion.Text });
         }
 
         private void InitializeComponent()
@@ -59,14 +62,28 @@ namespace LeagueExtender
                 Location = new Point(10, 10)
             };
 
+            lblRegion = new Label
+            {
+                Text = "Region:",
+                Location = new Point(10, 40)
+            };
+
             txtSummonerName = new TextBox
             {
                 Location = new Point(lblSummonerName.Location.X + lblSummonerName.Width, 10),
                 Width = this.Width - lblSummonerName.Location.X - lblSummonerName.Width - 30
             };
 
+            txtRegion = new TextBox
+            {
+                Location = new Point(lblSummonerName.Location.X + lblSummonerName.Width, 40),
+                Width = this.Width - lblSummonerName.Location.X - lblSummonerName.Width - 30
+            };
+
             this.Controls.Add(lblSummonerName);
             this.Controls.Add(txtSummonerName);
+            this.Controls.Add(lblRegion);
+            this.Controls.Add(txtRegion);
             this.Controls.Add(btnExit);
         }
 
