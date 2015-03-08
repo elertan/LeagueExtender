@@ -46,6 +46,9 @@
   <ItemGroup>
     <Compile Include="ExternalFeatures.cs" />
     <Compile Include="LolClient.cs" />
+    <Compile Include="LolClientBrowser.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MainWindow.cs">
       <SubType>Form</SubType>
     </Compile>

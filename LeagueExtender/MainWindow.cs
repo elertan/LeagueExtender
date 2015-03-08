@@ -14,6 +14,15 @@ namespace LeagueExtender
 
         LolClient LolClient;
         PreferencesDialog prefDialog;
+        LolClientBrowser lolNexusBrowser;
+        LolClientBrowser lolKingBrowser;
+
+        PictureBox gearImg;
+        Button btnLolNexus;
+        Button btnLolKing;
+
+        public bool lolNexusBrowserOpen = false;
+        public bool lolKingBrowserOpen = false;
 
         ~MainWindow() // For stopping a movement task later
         {
@@ -96,14 +105,72 @@ namespace LeagueExtender
 
         private void InitializeComponents()
         {
-            PictureBox gearImg = new PictureBox();
+            gearImg = new PictureBox();
             gearImg.Image = LeagueExtender.Properties.Resources.gear_blue;
             gearImg.Size = gearImg.Image.Size;
             gearImg.MouseHover += gearImg_MouseHover;
             gearImg.MouseLeave += gearImg_MouseLeave;
             gearImg.Click += gearImg_Click;
 
+            btnLolNexus = new Button
+            {
+                Location = new Point(35, 0),
+                BackColor = Color.Transparent,
+                Size = new Size(120, 30),
+                Text = "LolNexus"
+            };
+            btnLolNexus.Click += btnLolNexus_Click;
+
+            btnLolKing = new Button
+            {
+                Location = new Point(170, 0),
+                BackColor = Color.Transparent,
+                Size = new Size(120, 30),
+                Text = "LolKing"
+            };
+            btnLolKing.Click += btnLolKing_Click;
+
+            lolNexusBrowser = new LolClientBrowser(LolClient, String.Format("http://www.lolnexus.com/{0}/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+            lolNexusBrowser.Hide();
+
+            lolKingBrowser = new LolClientBrowser(LolClient, String.Format("http://www.lolking.net/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+            lolKingBrowser.Hide();
+
+            this.Controls.Add(btnLolKing);
+            this.Controls.Add(btnLolNexus);
             this.Controls.Add(gearImg);
+        }
+
+        void btnLolKing_Click(object sender, EventArgs e)
+        {
+            if (!lolKingBrowserOpen)
+            {
+                lolKingBrowser.SetActive(true);
+                lolKingBrowser.Show();
+                lolKingBrowser.SetUrl(String.Format("http://www.lolking.net/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+            }
+            else
+            {
+                lolKingBrowser.Hide();
+                lolKingBrowser.SetActive(false);
+            }
+            lolKingBrowserOpen = !lolKingBrowserOpen;
+        }
+
+        void btnLolNexus_Click(object sender, EventArgs e)
+        {
+            if (!lolNexusBrowserOpen)
+            {
+                lolNexusBrowser.SetActive(true);
+                lolNexusBrowser.Show();
+                lolNexusBrowser.SetUrl(String.Format("http://www.lolnexus.com/{0}/search?name={1}&region={0}", "EUW", Settings.Load("data.les").SummonerName.Replace(" ", "+")));
+            }
+            else
+            {
+                lolNexusBrowser.Hide();
+                lolNexusBrowser.SetActive(false);
+            }
+            lolNexusBrowserOpen = !lolNexusBrowserOpen;
         }
 
         void gearImg_Click(object sender, EventArgs e)
