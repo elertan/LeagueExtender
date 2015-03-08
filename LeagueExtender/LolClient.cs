@@ -142,6 +142,7 @@ namespace LeagueExtender
             this._tokenSource = new CancellationTokenSource();
             this._lastRect = this.GetRect();
             this._movingWindow = false;
+            
 
             this._OrginalSize = this.GetSize(true);
 
@@ -224,7 +225,7 @@ namespace LeagueExtender
                             clicksDetected++;
                             if (clicksDetected > 20)
                             {
-                                Task.Factory.StartNew(() => this.OnClickedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
+                                //Task.Factory.StartNew(() => this.OnClickedWindow(), this._tokenSource.Token, TaskCreationOptions.None, context);
                             }
                         }
                         else

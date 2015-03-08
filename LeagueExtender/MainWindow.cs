@@ -96,27 +96,27 @@ namespace LeagueExtender
 
         private void InitializeComponents()
         {
-            PictureBox pb = new PictureBox();
-            pb.Image = LeagueExtender.Properties.Resources.gear_blue;
-            pb.Size = pb.Image.Size;
-            pb.MouseHover += pb_MouseHover;
-            pb.MouseLeave += pb_MouseLeave;
-            pb.Click += pb_Click;
+            PictureBox gearImg = new PictureBox();
+            gearImg.Image = LeagueExtender.Properties.Resources.gear_blue;
+            gearImg.Size = gearImg.Image.Size;
+            gearImg.MouseHover += gearImg_MouseHover;
+            gearImg.MouseLeave += gearImg_MouseLeave;
+            gearImg.Click += gearImg_Click;
 
-            this.Controls.Add(pb);
+            this.Controls.Add(gearImg);
         }
 
-        void pb_Click(object sender, EventArgs e)
+        void gearImg_Click(object sender, EventArgs e)
         {
             this.prefDialog.ShowDialog(this.LolClient);
         }
 
-        void pb_MouseLeave(object sender, EventArgs e)
+        void gearImg_MouseLeave(object sender, EventArgs e)
         {
             this.Cursor = Cursors.Default;
         }
 
-        void pb_MouseHover(object sender, EventArgs e)
+        void gearImg_MouseHover(object sender, EventArgs e)
         {
             this.Cursor = Cursors.Hand;
         }
